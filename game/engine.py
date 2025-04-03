@@ -33,7 +33,7 @@ class GameEngine:
         for item in starting_items:
             self.player.add_item(item)
 
-        print(f"You are {self.player.name}, {self.player.description} warrior with {self.player.health} HP.")
+        print(f"You are {self.player.name}, {self.player.description}")
         print(f"You've been equipped with {len(starting_items)} starter items.")
         print("Type 'help' for commands.")
 
@@ -88,8 +88,13 @@ class GameEngine:
             elif verb == "attack" and noun:
                 enemy = self.world.get_enemy_by_name(noun)
                 if enemy:
-                    result = self.player.attack(enemy)
-                    print(result)
+                    print(f"{self.player.name} initiates combat with {enemy.name}!")
+                    combat = Combat(self.player, enemy)
+                    combat.start_combat()
+
+                    if self.player.health <= 0:
+                        print(f"{self.player.name} has been defeated!")
+                        self.running = False 
                 else:
                     print(f"No enemy named '{noun}' found.")
 
