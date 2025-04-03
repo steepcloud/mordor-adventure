@@ -59,7 +59,7 @@ class Combat:
                 self.player_turn()
                 if self.check_for_death():
                     combat_active = False
-                    break
+                    return self.player.health > 0
                 self.turn_order = "enemy"  # Switch turns
             else:
                 self.enemy_turn()
@@ -67,12 +67,14 @@ class Combat:
                     self.player.health = 0
                     print(f"{self.player.name} has been defeated!")
                     combat_active = False
-                    break
+                    return False
                 elif self.enemy.health <= 0:
                     print(f"{self.enemy.name} has been defeated!")
                     combat_active = False
-                    break
+                    return True
                 self.turn_order = "player"  # Switch turns
+        
+        return self.player.health > 0
 
     def player_turn(self):
         """Handle the player's turn."""
@@ -120,7 +122,12 @@ class Combat:
             index = int(choice) - 1
             if 0 <= index < len(self.player.inventory):
                 item = self.player.inventory[index]
-                result = item.use(self.player, self.enemy)
+
+                if hasattr(item, 'damage_amount'):
+                    result = item.use(self.player, self.enemy)
+                else:
+                    result = item.use(self.player)
+                
                 print(result)
                 # Remove consumable items after use
                 if item.consumable:

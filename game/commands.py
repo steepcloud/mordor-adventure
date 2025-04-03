@@ -177,19 +177,18 @@ def travel(world, destination):
 
 
 def help_command():
-    """Returns a list of available commands and their descriptions."""
-    return (
-        "Available commands:\n"
-        "  help - Show this help menu.\n"
-        "  look - Look around your current region.\n"
-        "  regions - Display available regions to travel to.\n"
-        "  travel [region] - Travel to a new region.\n"
-        "  enemies - Show all enemies in the current region.\n"
-        "  examine [object/enemy] - Inspect an object or enemy.\n"
-        "  attack [enemy] - Attack a specific enemy.\n"
-        "  encounter - Randomly encounter an enemy in the region.\n"
-        "  stats - Display your character stats.\n"
-        "  inventory - Show your inventory.\n"
-        "  use [item number/name] - Use an item from your inventory.\n"
-        "  quit - Exit the game."
-    )
+    """Display available commands."""
+    commands_text = "Available commands:\n"
+    commands_text += "  help - Display this help message.\n"
+    commands_text += "  look - Look around your current location.\n"
+    commands_text += "  regions - Show available regions to travel to.\n"
+    commands_text += "  travel [region] - Travel to a different region.\n"
+    commands_text += "  enemies - Show enemies in your current region.\n"
+    commands_text += "  examine [object] - Examine an object or character more closely.\n"
+    commands_text += "  attack [enemy] - Attack a specific enemy to start combat.\n"
+    commands_text += "  encounter - Find a random enemy to battle.\n"
+    commands_text += "  stats - Display your character's statistics.\n"
+    commands_text += "  inventory - Display your inventory.\n"
+    commands_text += "  use [item/number] - Use an item from your inventory.\n"
+    commands_text += "  quit - Exit the game."
+    return commands_text
