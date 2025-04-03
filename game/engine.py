@@ -59,6 +59,8 @@ class GameEngine:
                 
             # Process all other commands through the command processor
             result = process_command(command, self)
+            if result:
+                print(result)
             
             # Check if player died during command execution
             if not self.player.is_alive():

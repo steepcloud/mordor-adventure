@@ -9,13 +9,60 @@ class Character(GameObject):
         description = f"{GameObject.get_article(race)} {race} warrior with {health} HP."
         super().__init__(name, description)
         self.race = race
-        self.health = health
-        self.max_health = health  # Store max health for healing purposes
-        self.attack_power = attack_power
-        self.defense = 0  # Base defense value
+        self._health = health
+        self._max_health = health  # Store max health for healing purposes
+        self._attack_power = attack_power
+        self._defense = 0  # Base defense value
         self.inventory = []  # List to store items
         self.equipped_weapon = None
         self.equipped_armor = None
+        self.equipped_charm = None
+
+    @property
+    def health(self):
+        """Get the character's current health."""
+        return self._health
+
+    @health.setter
+    def health(self, value):
+        """Set the character's health, ensuring it stays withing bounds."""
+        self._health = max(0, min(value, self.max_health))
+    
+    @property
+    def max_health(self):
+        """Get the character's maximum health."""
+        return self._max_health
+
+    @max_health.setter
+    def max_health(self, value):
+        """Set the character's maximum health."""
+        self._max_health = max(1, value)
+        if self._health > self._max_health:
+            self._health = self.max_health
+    
+    @property
+    def attack_power(self):
+        """Get the character's attack power including weapon bonus."""
+        base_power = self._attack_power
+        weapon_bonus = self.equipped_weapon.attack_bonus if self.equipped_weapon else 0
+        return base_power + weapon_bonus
+    
+    @attack_power.setter
+    def attack_power(self, value):
+        """Set the character's base attack power."""
+        self._attack_power = max(1, value)
+    
+    @property
+    def defense(self):
+        """Get the character's defense including armor bonus."""
+        base_defense = self._defense
+        armor_bonus = self.equipped_armor.defense_bonus if self.equipped_armor else 0
+        return base_defense + armor_bonus
+
+    @defense.setter
+    def defense(self, value):
+        """Set the character's base defense."""
+        self._defense = max(0, value)
 
     def is_alive(self):
         return self.health > 0
@@ -79,16 +126,50 @@ class Orc(Character):
         super().__init__(name, "Orc", 20, 5)
         # Orcs get a slight defense boost
         self.defense = 1
+    
+    def special_ability(self, target):
+        """Orcs have Berserker Rage: deal high damage but take recoil damage."""
+        damage = rd.randint(self.attack_power, self.attack_power * 2)
+        target.health -= damage
+
+        recoil = max(1, damage // 4)
+        self.health -= recoil
+
+        return (f"{self.name} goes into a berserker rage and deals {damage} damage to {target.name}! "
+                f"The rage costs {self.name} {recoil} health points.")
+
 
 
 class Elf(Character):
     def __init__(self, name):
         super().__init__(name, "Elf", 15, 6)
         # Elves have higher attack but lower health
+    
+    def special_ability(self, target):
+        """Elves have Precision Strike: guaranteed hit with critical chance."""
+        critical = rd.random() < 0.4  # 40% chance for critical hit
+        damage = self.attack_power * (2 if critical else 1)
+        target.health -= damage
+        
+        if critical:
+            return f"{self.name} fires a critical precision shot at {target.name} for {damage} damage!"
+        else:
+            return f"{self.name} fires a precision shot at {target.name} for {damage} damage!"
 
 
 class Human(Character):
     def __init__(self, name):
         super().__init__(name, "Human", 18, 4)
         # Humans are balanced
-        # Could add special abilities later
+
+    def special_ability(self, target=None):
+        """Humans have Resilience: restore health and gain temporary defense."""
+        heal_amount = rd.randint(2, 5)
+        original_health = self.health
+        self.health += heal_amount
+        actual_heal = self.health - original_health
+        
+        # Temporarily increase defense for next turn
+        self._defense += 2  # This will wear off in combat.py after enemy turn
+        
+        return f"{self.name} shows resilience, healing for {actual_heal} HP and gaining +2 defense for the next attack!"
