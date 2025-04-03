@@ -3,6 +3,77 @@ from .world import GameObject
 from .items import Item
 
 
+def process_command(command, game_engine):
+    """Process a user command and return the result."""
+    if not command:
+        return "Please enter a command."
+    
+    words = command.strip().lower().split()
+    verb = words[0]
+    noun = ' '.join(words[1:]) if len(words) > 1 else None
+    
+    # Handle different commands
+    if verb == "help":
+        return help_command()
+    
+    elif verb == "look":
+        return look_around(game_engine.world)
+    
+    elif verb == "regions":
+        return show_regions(game_engine.world)
+    
+    elif verb == "travel" and noun:
+        return travel(game_engine.world, noun)
+    elif verb == "travel":
+        return "Travel where? Type 'regions' to see available destinations."
+    
+    elif verb == "enemies":
+        return show_enemies(game_engine.world)
+    
+    elif verb == "examine" and noun:
+        return examine(noun)
+    elif verb == "examine":
+        return "Examine what?"
+    
+    elif verb == "attack" and noun:
+        enemy = game_engine.world.get_enemy_by_name(noun)
+        if enemy:
+            from .combat import Combat
+            print(f"{game_engine.player.name} initiates combat with {enemy.name}!")
+            combat = Combat(game_engine.player, enemy)
+            combat.start_combat()
+            return ""  # Combat system handles output
+        else:
+            return f"No enemy named '{noun}' found."
+    elif verb == "attack":
+        return "Attack what? Specify an enemy name."
+    
+    elif verb == "encounter":
+        enemy = game_engine.world.encounter_enemy()
+        if enemy:
+            from .combat import Combat
+            print(f"{game_engine.player.name} encounters {enemy.name}!")
+            combat = Combat(game_engine.player, enemy)
+            combat.start_combat()
+            return ""  # Combat system handles output
+        else:
+            return "No enemies to encounter."
+    
+    elif verb == "stats":
+        return show_stats(game_engine.player)
+    
+    elif verb == "inventory":
+        return show_inventory(game_engine.player)
+    
+    elif verb == "use" and noun:
+        return use_item(game_engine.player, noun)
+    elif verb == "use":
+        return "Use what? Specify an item number or name."
+    
+    else:
+        return "Unknown command. Type 'help' for a list of commands."
+
+
 def examine(noun):
     """Returns the description of an object or character in the game."""
     noun = noun.lower()
