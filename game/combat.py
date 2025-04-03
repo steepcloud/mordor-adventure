@@ -52,16 +52,25 @@ class Combat:
     def start_combat(self):
         """Initiate the combat loop with random turn order."""
         print(f"The battle begins! {self.turn_order.capitalize()} attacks first.\n")
-
-        while True:
+        
+        combat_active = True
+        while combat_active:
             if self.turn_order == "player":
                 self.player_turn()
                 if self.check_for_death():
+                    combat_active = False
                     break
                 self.turn_order = "enemy"  # Switch turns
             else:
                 self.enemy_turn()
-                if self.check_for_death():
+                if self.player.health <= 0:
+                    self.player.health = 0
+                    print(f"{self.player.name} has been defeated!")
+                    combat_active = False
+                    break
+                elif self.enemy.health <= 0:
+                    print(f"{self.enemy.name} has been defeated!")
+                    combat_active = False
                     break
                 self.turn_order = "player"  # Switch turns
 
@@ -126,7 +135,7 @@ class Combat:
     def enemy_turn(self):
         """Handle the enemy's turn."""
         print("\nIt's the enemy's turn!")
-        attack_type = "special" if rd.random() < 0.3 else "normal"  # 30% chance for a special attack
+        attack_type = "special" if rd.random() < 0.2 else "normal"  # 30% chance for a special attack
         self.attack(self.enemy, self.player, attack_type)
 
     def attempt_flee(self):
