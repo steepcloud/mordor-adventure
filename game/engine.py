@@ -1,8 +1,7 @@
 from .characters import Orc, Elf, Human
 from .commands import examine, attack, help_command
-from .world import GameObject, World
+from .world import World
 from .combat import Combat
-#import random as rd
 
 class GameEngine:
     """Manages the game loop and user commands."""
@@ -30,7 +29,6 @@ class GameEngine:
         print("Type 'help' for commands.")
 
         self.world = World(self.player)
-        #self.world.populate_world()
 
         self.game_loop()
 

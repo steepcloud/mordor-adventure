@@ -1,23 +1,7 @@
 import random as rd
 from .combat import Combat
+from .game_object import GameObject
 from .characters import Orc, Elf, Human
-
-class GameObject:
-    """Base class for all objects in the game."""
-    objects = {}
-
-    def __init__(self, name, description):
-        self.name = name
-        self.description = description
-        GameObject.objects[self.name.lower()] = self
-
-    def get_desc(self):
-        return self.description
-
-    @staticmethod
-    def get_article(word):
-        return "An" if word.lower()[0] in "aeiou" else "A"
-
 
 class Enemy(GameObject):
     """Base class for all enemies in the game."""
@@ -66,7 +50,6 @@ class World:
 
     def populate_world(self):
         """Populates the world with random enemies."""
-        #from .characters import Orc, Elf, Human
         enemy_types = self.regions.get(self.current_region, [])
 
         for _ in range(5):  # Generate 5 random enemies for now

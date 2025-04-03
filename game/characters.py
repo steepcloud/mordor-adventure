@@ -1,4 +1,4 @@
-from .world import GameObject
+from .game_object import GameObject
 import random as rd
 
 class Character(GameObject):
