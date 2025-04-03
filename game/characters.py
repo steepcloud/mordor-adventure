@@ -31,10 +31,10 @@ class Character(GameObject):
             reduced_damage = max(1, damage - target.defense)  # Minimum 1 damage
             damage_blocked = damage - reduced_damage
             damage = reduced_damage
-            target.health -= damage
+            target.health = max(0, target.health - damage)
             return f"{self.name} attacks {target.name} for {damage} damage! {target.name}'s armor blocks {damage_blocked} damage. {target.name} now has {target.health} HP."
         else:
-            target.health -= damage
+            target.health = max(0, target.health - damage)
             return f"{self.name} attacks {target.name} for {damage} damage! {target.name} now has {target.health} HP."
 
     def heal(self, amount):

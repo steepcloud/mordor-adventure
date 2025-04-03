@@ -33,7 +33,7 @@ class Combat:
             print(f"{attacker.name} uses a special attack!")
 
         # Apply the damage to the target
-        target.health -= damage
+        target.health = max(0, target.health - damage)
 
         # Message about the attack
         print(f"{attacker.name} attacks {target.name} for {damage} damage!")
