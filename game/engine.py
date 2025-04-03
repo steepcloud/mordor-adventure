@@ -9,8 +9,7 @@ class GameEngine:
     def __init__(self):
         self.running = True
         self.player = None
-        self.world = World()
-        self.world.populate_world()
+        self.world = None
 
     def start_game(self):
         print("Welcome to the Lands of Mordor!")
@@ -29,6 +28,10 @@ class GameEngine:
 
         print(f"You are {self.player.name}, An {self.player.race} warrior with {self.player.health} HP.")
         print("Type 'help' for commands.")
+
+        self.world = World(self.player)
+        self.world.populate_world()
+
         self.game_loop()
 
     def game_loop(self):

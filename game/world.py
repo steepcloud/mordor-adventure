@@ -32,13 +32,14 @@ class Enemy(GameObject):
 class World:
     """Represents the game world, with NPCs and enemies."""
 
-    def __init__(self):
+    def __init__(self, player):
         self.enemies = []
+        self.player = player
 
     def populate_world(self):
         """Populates the world with random enemies."""
-        # Delay imports inside the function to avoid circular imports
-        from .characters import Orc, Elf, Human  # Import here
+        from .characters import Orc, Elf, Human
+
         enemy_types = [(Orc, "A menacing Orc warrior."),
                        (Elf, "A graceful Elf with sharp eyes."),
                        (Human, "A brave Human warrior.")]
