@@ -1,5 +1,5 @@
 from .characters import Orc, Elf, Human
-from .commands import examine, attack
+from .commands import examine, attack, help_command
 
 class GameEngine:
     """Manages the game loop and user commands."""
@@ -35,9 +35,17 @@ class GameEngine:
             if verb == "quit":
                 print("Goodbye, traveler!")
                 self.running = False
-            elif verb == "examine" and noun:
-                print(examine(noun))
-            elif verb == "attack" and noun:
-                print(attack(self.player, noun))
+            elif verb == "help":
+                print(help_command())
+            elif verb == "examine":
+                if noun:
+                    print(examine(noun))
+                else:
+                    print("Examine what?")
+            elif verb == "attack":
+                if noun:
+                    print(attack(self.player, noun))
+                else:
+                    print("Attack who?")
             else:
-                print("Unknown command.")
+                print("Unknown command. Type 'help' for a list of commands.")
