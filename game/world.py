@@ -70,9 +70,19 @@ class World:
         enemy_types = self.regions.get(self.current_region, [])
         self.enemies = []  # Clear existing enemies
 
+        available_types = enemy_types.copy()
+
         for _ in range(5):  # Generate 5 random enemies for now
-            if enemy_types:
-                character_class, description = rd.choice(enemy_types)
+            if not available_types:
+                # if we've used all the types, refill
+                available_types = enemy_types.copy()
+            
+            if available_types:
+                # select a random enemy type and remove it from available_types
+                type_index = rd.randint(0, len(available_types) - 1)
+                character_class, description = available_types.pop(type_index)
+
+                # generate a unique name with race and number
                 name = f"{character_class.__name__}_{rd.randint(1, 100)}"
                 self.enemies.append(Enemy(name, description, character_class))
 
