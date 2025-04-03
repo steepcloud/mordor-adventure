@@ -48,7 +48,7 @@ class Combat:
 
     def start_combat(self):
         """Initiate the combat loop with random turn order."""
-        print(f"The battle begins! {self.turn_order.capitalize()} attacks first.")
+        print(f"The battle begins! {self.turn_order.capitalize()} attacks first.\n")
 
         while True:
             if self.turn_order == "player":
@@ -65,8 +65,19 @@ class Combat:
     def player_turn(self):
         """Handle the player's turn."""
         print("\nIt's your turn!")
-        attack_type = self.choose_attack_type()
-        self.attack(self.player, self.enemy, attack_type)
+        action = input("Do you want to 'attack' or 'flee'? ").strip().lower()
+
+        if action == "attack":
+            attack_type = self.choose_attack_type()
+            self.attack(self.player, self.enemy, attack_type)
+        elif action == "flee":
+            if self.attempt_flee():
+                print(f"{self.player.name} successfully flees from {self.enemy.name}!")
+            else:
+                print(f"{self.player.name} tries to flee but is blocked by {self.enemy.name}!")
+                self.attack(self.enemy, self.player)
+        else:
+            print("Invalid action. Choose 'attack' or 'flee'.")
 
     def enemy_turn(self):
         """Handle the enemy's turn."""
@@ -82,3 +93,23 @@ class Combat:
         else:
             print("You choose a special attack!")
         return attack_choice
+
+    def attempt_flee(self):
+        """
+        Determines if the player can flee from the enemy.
+        A higher chance of success if the player is stronger or if the enemy is weak.
+        :return: True if the flee chance is 50% or higher, False otherwise.
+        """
+        flee_chance = rd.random()
+        player_strength = self.player.health  # Using player health as strength for now
+        enemy_strength = self.enemy.health  # Same for the enemy
+
+        if player_strength > enemy_strength:
+            flee_chance += 0.2
+
+        if player_strength < enemy_strength:
+            flee_chance -= 0.2
+
+        flee_chance = max(0.0, min(flee_chance, 1.0))
+
+        return flee_chance >= 0.5

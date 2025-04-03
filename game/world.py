@@ -1,5 +1,5 @@
 import random as rd
-
+from .combat import Combat
 
 class GameObject:
     """Base class for all objects in the game."""
@@ -53,7 +53,8 @@ class World:
         if self.enemies:
             enemy = rd.choice(self.enemies)
             print(f"You have encountered {enemy.get_desc()}")
-            return enemy.character
+            combat = Combat(self.player, enemy.character)
+            combat.start_combat()
         else:
             print("There are no enemies left to encounter.")
             return None
