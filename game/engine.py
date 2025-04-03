@@ -55,7 +55,6 @@ class GameEngine:
                 self.running = False
 
             elif verb == "help":
-                #print(self.display_help())
                 print(help_command())
 
             elif verb == "regions":
@@ -89,7 +88,8 @@ class GameEngine:
             elif verb == "attack" and noun:
                 enemy = self.world.get_enemy_by_name(noun)
                 if enemy:
-                    print(attack(self.player, enemy))
+                    result = self.player.attack(enemy)
+                    print(result)
                 else:
                     print(f"No enemy named '{noun}' found.")
 
