@@ -85,6 +85,13 @@ class World:
         else:
             print(f"Invalid region: {new_region}. Staying in {self.current_region}.")
 
+    def get_enemy_by_name(self, name):
+        """Returns an enemy object by name."""
+        for enemy in self.enemies:
+            if enemy.name.lower() == name.lower():
+                return enemy
+        return None
+
     def encounter_enemy(self):
         """Randomly encounters an enemy."""
         if self.enemies:
