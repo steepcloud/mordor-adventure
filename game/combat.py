@@ -6,7 +6,10 @@ class Combat:
 
     def __init__(self, player, enemy):
         self.player = player
-        self.enemy = enemy
+        if hasattr(enemy, 'character'):
+            self.enemy = enemy.character
+        else:
+            self.enemy = enemy
         self.turn_order = self.determine_turn_order()
 
     def determine_turn_order(self):
