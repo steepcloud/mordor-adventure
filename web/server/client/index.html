@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mordor Adventure</title>
+    <link rel="stylesheet" href="crt.css">
+</head>
+<body>
+    <div class="container">
+        <div class="crt">
+            <div class="scanline"></div>
+            <div class="scanlines"></div>
+            <div class="flicker"></div>
+            
+            <div id="game-screen">
+                <div id="output-container">
+                    <pre id="output"></pre>
+                </div>
+                
+                <div id="status-bar">
+                    <div id="player-info">
+                        <span id="player-name"></span> |
+                        <span id="player-health"></span>
+                    </div>
+                </div>
+                
+                <div id="input-container">
+                    <span class="prompt">&gt;</span>
+                    <input type="text" id="command-input" autofocus>
+                </div>
+            </div>
+            
+            <div id="startup-screen">
+                <h1>Mordor Adventure</h1>
+                <div class="form-group">
+                    <label for="player-name-input">Enter your name:</label>
+                    <input type="text" id="player-name-input">
+                </div>
+                <div class="form-group">
+                    <label for="race-select">Choose your race:</label>
+                    <select id="race-select">
+                        <option value="orc">Orc</option>
+                        <option value="elf">Elf</option>
+                        <option value="human">Human</option>
+                    </select>
+                </div>
+                <button id="start-button">Begin Adventure</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
