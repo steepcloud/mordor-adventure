@@ -11,10 +11,16 @@ class Combat:
         else:
             self.enemy = enemy
         self.turn_order = self.determine_turn_order()
+        self.combat_log = []
+        self.combat_active = True
 
     def determine_turn_order(self):
         """Determine who attacks first using a random coin flip."""
         return "player" if rd.choice(["heads", "tails"]) == "heads" else "enemy"
+    
+    def log(self, message):
+        """Add a message to the combat log."""
+        self.combat_log.append(message)
 
     def attack(self, attacker, target, attack_type="normal"):
         """Handle an attack from the attacker to the target."""
@@ -25,56 +31,171 @@ class Combat:
         # Apply critical hit bonus
         if is_critical:
             damage *= 2
-            print(f"Critical hit! {attacker.name} deals double damage!")
+            self.log(f"Critical hit! {attacker.name} deals double damage!")
 
         # Special attack logic
         if attack_type == "special":
             damage += rd.randint(1, 3)  # Special attacks do more damage
-            print(f"{attacker.name} uses a special attack!")
+            self.log(f"{attacker.name} uses a special attack!")
 
         # Apply the damage to the target
         target.health = max(0, target.health - damage)
 
         # Message about the attack
-        print(f"{attacker.name} attacks {target.name} for {damage} damage!")
-        print(f"{target.name} now has {target.health} HP.")
+        self.log(f"{attacker.name} attacks {target.name} for {damage} damage!")
+        self.log(f"{target.name} now has {target.health} HP.")
 
     def check_for_death(self):
         """Check if either the player or the enemy is dead."""
         if self.player.health <= 0:
-            print(f"{self.player.name} has been defeated!")
+            self.player.health = 0
+            self.log(f"{self.player.name} has been defeated!")
+            self.combat_active = False
             return True
         elif self.enemy.health <= 0:
-            print(f"{self.enemy.name} has been defeated!")
+            self.enemy.health = 0
+            self.log(f"{self.enemy.name} has been defeated!")
+            self.combat_active = False
             return True
         return False
 
     def start_combat(self):
         """Initiate the combat loop with random turn order."""
-        print(f"The battle begins! {self.turn_order.capitalize()} attacks first.\n")
+        self.combat_log = []
         
-        combat_active = True
-        while combat_active:
-            if self.turn_order == "player":
-                self.player_turn()
-                if self.check_for_death():
-                    combat_active = False
-                    return self.player.health > 0
-                self.turn_order = "enemy"  # Switch turns
+        self.log(f"You face {self.enemy.name}!")
+
+        if hasattr(self.enemy, 'description'):
+            self.log(f"{self.enemy.description}")
+            
+        self.log(f"The battle begins! {self.turn_order.capitalize()} attacks first.\n")
+
+        if self.turn_order == "enemy":
+            self.enemy_turn()
+            if not self.check_for_death():
+                self.turn_order = "player"
+                self.log("\nIt's your turn!")
+                self.log("Available actions: 'attack', 'special', 'use item', 'flee'")
+        else:
+            self.log("\nIt's your turn!")
+            self.log("Available actions: 'attack', 'special', 'use item', 'flee'")
+        
+        return self.get_combat_state()
+
+    def get_combat_state(self):
+        """Return the current combat state as a dictionary"""
+        return {
+            "player": {
+                "name": self.player.name,
+                "health": self.player.health,
+                "max_health": self.player.max_health
+            },
+            "enemy": {
+                "name": self.enemy.name,
+                "health": self.enemy.health,
+                "max_health": getattr(self.enemy, 'max_health', self.enemy.health)
+            },
+            "active": self.combat_active,
+            "turn": self.turn_order,
+            "log": self.combat_log,
+            "victory": self.enemy.health <= 0 and self.player.health > 0 if not self.combat_active else None
+        }
+
+    def process_action(self, action, item_index=None, item_name=None):
+        """Process a single combat action and return the updated state."""
+        self.combat_log = []  # Clear previous messages
+        
+        # Only process actions on player's turn
+        if self.turn_order != "player":
+            self.log("It's not your turn yet!")
+            return self.get_combat_state()
+        
+        # Process the player's chosen action
+        if action == "attack":
+            self.attack(self.player, self.enemy, "normal")
+        elif action == "special":
+            self.attack(self.player, self.enemy, "special")
+        elif action == "use_item":
+            if item_index is not None:
+                self.use_item_by_index(item_index)
+            elif item_name is not None:
+                self.use_item_by_name(item_name)
             else:
-                self.enemy_turn()
-                if self.player.health <= 0:
-                    self.player.health = 0
-                    print(f"{self.player.name} has been defeated!")
-                    combat_active = False
-                    return False
-                elif self.enemy.health <= 0:
-                    print(f"{self.enemy.name} has been defeated!")
-                    combat_active = False
-                    return True
-                self.turn_order = "player"  # Switch turns
+                self.log("No item specified.")
+                return self.get_combat_state()
+        elif action == "flee":
+            if self.attempt_flee():
+                self.log(f"{self.player.name} successfully flees from {self.enemy.name}!")
+                self.combat_active = False
+                return self.get_combat_state()
+            else:
+                self.log(f"{self.player.name} tries to flee but is blocked by {self.enemy.name}!")
+        else:
+            self.log(f"Invalid combat action: '{action}'")
+            self.log("Available actions: 'attack', 'special', 'use_item', 'flee'")
+            self.log(f"\nYou are fighting {self.enemy.name} ({self.enemy.health}/{self.enemy.max_health} HP)")
+
+            return self.get_combat_state()
         
-        return self.player.health > 0
+        # Check if combat is over after player's action
+        if self.check_for_death():
+            return self.get_combat_state()
+        
+        # Switch to enemy turn
+        self.turn_order = "enemy"
+        self.enemy_turn()
+        
+        # Check if combat is over after enemy's action
+        if self.check_for_death():
+            return self.get_combat_state()
+        
+        # Switch back to player's turn
+        self.turn_order = "player"
+        self.log("\nIt's your turn!")
+        self.log("Available actions: 'attack', 'special', 'use item', 'flee'")
+        
+        return self.get_combat_state()
+    
+    def use_item_by_index(self, index):
+        """Use an item by its inventory index."""
+        if not hasattr(self.player, 'inventory') or not self.player.inventory:
+            self.log("You don't have any items to use.")
+            return False
+
+        try:
+            if 0 <= index < len(self.player.inventory):
+                item = self.player.inventory[index]
+                
+                if hasattr(item, 'damage_amount'):
+                    result = item.use(self.player, self.enemy)
+                else:
+                    result = item.use(self.player)
+                
+                self.log(result)
+                
+                # Remove consumable items after use
+                if item.consumable:
+                    self.player.inventory.pop(index)
+                return True
+            else:
+                self.log("Invalid item index.")
+                return False
+        except (ValueError, IndexError):
+            self.log("Error using item.")
+            return False
+    
+    def use_item_by_name(self, name):
+        """Use an item by its name."""
+        if not hasattr(self.player, 'inventory') or not self.player.inventory:
+            self.log("You don't have any items to use.")
+            return False
+
+        for i, item in enumerate(self.player.inventory):
+            if item.name.lower() == name.lower():
+                return self.use_item_by_index(i)
+        
+        self.log(f"You don't have an item called '{name}'.")
+        return False
 
     def player_turn(self):
         """Handle the player's turn."""
@@ -83,65 +204,33 @@ class Combat:
         action = input("What will you do? ").strip().lower()
 
         if action == "attack":
-            self.attack(self.player, self.enemy, "normal")
+            return self.process_action("attack")
         elif action == "special":
-            self.attack(self.player, self.enemy, "special")
+            return self.process_action("special")
         elif action == "use item":
             if hasattr(self.player, 'inventory') and self.player.inventory:
-                self.use_item()
+                print("Your inventory:")
+                for i, item in enumerate(self.player.inventory):
+                    print(f"{i+1}. {item.name}")
+                
+                try:
+                    item_idx = int(input("Enter item number to use: ")) - 1
+                    return self.process_action("use_item", item_index=item_idx)
+                except (ValueError, IndexError):
+                    print("Invalid selection.")
+                    return self.player_turn()  # Try again
             else:
                 print("You don't have any items to use.")
-                self.player_turn()  # Try again
+                return self.player_turn()
         elif action == "flee":
-            if self.attempt_flee():
-                print(f"{self.player.name} successfully flees from {self.enemy.name}!")
-                return  # Exit combat
-            else:
-                print(f"{self.player.name} tries to flee but is blocked by {self.enemy.name}!")
-                self.attack(self.enemy, self.player)
+            return self.process_action("flee")
         else:
             print("Invalid action. Try again.")
             self.player_turn()  # Try again
 
-    def use_item(self):
-        """Handle using an item from the player's inventory."""
-        if not hasattr(self.player, 'inventory') or not self.player.inventory:
-            print("You don't have any items to use.")
-            return
-
-        print("\nYour inventory:")
-        for i, item in enumerate(self.player.inventory, 1):
-            print(f"{i}. {item.name}: {item.description}")
-
-        choice = input("Enter the number of the item to use (or 'cancel'): ").strip().lower()
-        if choice == 'cancel':
-            self.player_turn()  # Go back to action selection
-            return
-
-        try:
-            index = int(choice) - 1
-            if 0 <= index < len(self.player.inventory):
-                item = self.player.inventory[index]
-
-                if hasattr(item, 'damage_amount'):
-                    result = item.use(self.player, self.enemy)
-                else:
-                    result = item.use(self.player)
-                
-                print(result)
-                # Remove consumable items after use
-                if item.consumable:
-                    self.player.inventory.pop(index)
-            else:
-                print("Invalid item number.")
-                self.use_item()  # Try again
-        except ValueError:
-            print("Please enter a valid number or 'cancel'.")
-            self.use_item()  # Try again
-
     def enemy_turn(self):
         """Handle the enemy's turn."""
-        print("\nIt's the enemy's turn!")
+        self.log("\nIt's the enemy's turn!")
         attack_type = "special" if rd.random() < 0.2 else "normal"  # 30% chance for a special attack
         self.attack(self.enemy, self.player, attack_type)
 

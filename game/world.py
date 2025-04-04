@@ -102,6 +102,7 @@ class World:
                 return enemy
         return None
 
+    '''
     def encounter_enemy(self):
         """Randomly encounters an enemy."""
         if self.enemies:
@@ -124,7 +125,14 @@ class World:
             return enemy
         else:
             return None
-
+    '''
+    def encounter_enemy(self):
+        """Randomly selects an enemy from the current region."""
+        if self.enemies:
+            return rd.choice(self.enemies)
+        else:
+            return None
+        
     def handle_victory(self, enemy):
         """Handle the aftermath of defeating an enemy."""
         print(f"You have defeated {enemy.name}!")
@@ -135,3 +143,33 @@ class World:
             for item in enemy.character.inventory:
                 print(f"  - {item.name}: {item.description}")
                 self.player.add_item(item)
+    
+    def give_reward(self, player):
+        """Give rewards after combat and return message."""
+        enemy = self.get_last_defeated_enemy()
+        if not enemy:
+            return None
+        
+        reward_message = []
+        reward_message.append(f"You have defeated {enemy.name}!")
+        
+        # Award loot if the enemy has any
+        if hasattr(enemy.character, 'inventory') and enemy.character.inventory:
+            reward_message.append("You found some items!")
+            for item in enemy.character.inventory:
+                reward_message.append(f"  - {item.name}: {item.description}")
+                player.add_item(item)
+        
+        # Remove the enemy from the world
+        if enemy in self.enemies:
+            self.enemies.remove(enemy)
+        
+        return "\n".join(reward_message)
+
+    def get_last_defeated_enemy(self):
+        """Get the last defeated enemy (for reward purposes)."""
+        # This is a placeholder - in a real implementation, you'd track this
+        for enemy in self.enemies:
+            if hasattr(enemy, 'character') and enemy.character.health <= 0:
+                return enemy
+        return None
