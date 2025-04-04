@@ -33,9 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
             playerNameDisplay.textContent = data.player.name;
             updateHealthDisplay(data.player.health, data.player.max_health);
             
-            // Display initial messages
-            appendToOutput(data.messages.join('\n'));
-            
             // Switch to game screen
             startupScreen.style.display = 'none';
             gameScreen.style.display = 'flex';
@@ -55,6 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Command input event
     commandInput.addEventListener('keydown', async (e) => {
         if (e.key === 'Enter') {
+            console.log("Current output content:", output.textContent);
+            console.log("Output contains welcome msg:", 
+                   output.textContent.includes("Welcome to the Lands of Mordor"));
+        
             e.preventDefault();
             const command = commandInput.value.trim();
             if (!command) return;

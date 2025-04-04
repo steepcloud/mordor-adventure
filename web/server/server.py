@@ -177,7 +177,6 @@ def command():
     print(f"Captured output: '{captured_output[:100]}...' (truncated)")
 
     if captured_output:
-        #result = captured_output + '\n' + (result if result else "")
         game['messages'] = [f"> {command_text}", captured_output]
     else:
         game['messages'] = [f"> {command_text}", "No response from the game."]
