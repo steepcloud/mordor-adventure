@@ -1,8 +1,8 @@
 from .characters import Orc, Elf, Human
-from .commands import examine, attack, help_command
+from .commands import process_command, help_command, show_regions, show_enemies, show_inventory, use_item
 from .world import World
-from .combat import Combat
 from .items import create_starting_items
+from .combat import Combat
 
 
 class GameEngine:
@@ -12,8 +12,23 @@ class GameEngine:
         self.running = True
         self.player = None
         self.world = None
+        self.in_combat = False
+        self.active_combat = None
 
     def start_game(self):
+        """Initialize the game and start the main game loop."""
+        self._setup_player()
+        self._give_starting_items()
+
+        print(f"You are {self.player.name}, {self.player.description}")
+        print(f"You've been equipped with {len(self.player.inventory)} starter items.")
+        print("Type 'help' for commands.")
+
+        self.world = World(self.player)
+        self.game_loop()
+
+    def _setup_player(self):
+        """Create the player character based on user input."""
         print("Welcome to the Lands of Mordor!")
 
         while True:
@@ -24,6 +39,7 @@ class GameEngine:
                 print("You must enter a name.")
             else:
                 break
+
         race = input("Choose your race (Orc, Elf, Human): ").strip().lower()
 
         if race == "orc":
@@ -36,154 +52,78 @@ class GameEngine:
             print("Invalid race. Defaulting to Human.")
             self.player = Human(name)
 
-        # Give the player some starting items
+    def _give_starting_items(self):
+        """Give the player their starting inventory items."""
         starting_items = create_starting_items()
         for item in starting_items:
             self.player.add_item(item)
 
-        print(f"You are {self.player.name}, {self.player.description}")
-        print(f"You've been equipped with {len(starting_items)} starter items.")
-        print("Type 'help' for commands.")
-
-        self.world = World(self.player)
-
-        self.game_loop()
-
     def game_loop(self):
+        """Main game loop that processes player commands."""
         while self.running and self.player.is_alive():
-            command = input("\n> ").strip().lower().split()
-            if not command:
-                continue
+            command = input("\n> ").strip().lower()
 
-            verb = command[0]
-            noun = ' '.join(command[1:]) if len(command) > 1 else None
-
-            if verb == "quit":
+            # special case for quit command
+            if command == "quit":
                 print("Goodbye, traveler!")
                 self.running = False
+                continue
 
-            elif verb == "help":
-                print(help_command())
-
-            elif verb == "regions":
-                self.show_regions()
-
-            elif verb == "travel" and noun:
-                self.world.change_region(noun)
-
-            elif verb == "look":
-                print(f"You are currently in the {self.world.current_region}.")
-                print(f"There are {len(self.world.enemies)} enemies in this area.")
-
-            elif verb == "enemies":
-                self.show_enemies()
-
-            elif verb == "examine":
-                if noun:
-                    print(examine(noun))
-                else:
-                    print("Examine what?")
-
-            elif verb == "stats":
-                print(self.player.show_stats())
-
-            elif verb == "inventory":
-                self.show_inventory()
-
-            elif verb == "use" and noun:
-                self.use_item(noun)
-
-            elif verb == "attack" and noun:
-                enemy = self.world.get_enemy_by_name(noun)
-                if enemy:
-                    print(f"{self.player.name} initiates combat with {enemy.name}!")
-                    combat = Combat(self.player, enemy)
-                    combat.start_combat()
-
-                    if self.player.health <= 0:
-                        print(f"{self.player.name} has been defeated!")
-                        self.running = False 
-                else:
-                    print(f"No enemy named '{noun}' found.")
-
-            elif verb == "encounter":
-                enemy = self.world.encounter_enemy()
-                if enemy:
-                    print(f"{self.player.name} encounters {enemy.name}!")
-                    combat = Combat(self.player, enemy)
-                    combat.start_combat()
-
-                    if self.player.health <= 0:
-                        print(f"{self.player.name} has been defeated!")
-                        self.running = False
-                else:
-                    print("No enemies to encounter.")
-
-            else:
-                print("Unknown command. Type 'help' for a list of commands.")
-
-        if not self.player.is_alive():
-            print("Game over! Your character has been defeated.")
-
-    def show_regions(self):
-        """Display all available regions."""
-        print("Available regions:")
-        for region in self.world.regions.keys():
-            if region == self.world.current_region:
-                print(f"  {region} (current)")
-            else:
-                print(f"  {region}")
-
-    def show_enemies(self):
-        """Display all enemies in the current region."""
-        if not self.world.enemies:
-            print("There are no enemies in this region.")
-            return
-
-        print(f"Enemies in the {self.world.current_region}:")
-        for i, enemy in enumerate(self.world.enemies, 1):
-            print(f"  {i}. {enemy.name}: {enemy.get_desc()}")
-
-    def show_inventory(self):
-        """Display the player's inventory."""
-        if not self.player.inventory:
-            print("Your inventory is empty.")
-            return
-
-        print("Your inventory:")
-        for i, item in enumerate(self.player.inventory, 1):
-            equipped = ""
-            if hasattr(item, 'equipped') and item.equipped:
-                equipped = " (equipped)"
-            print(f"  {i}. {item.name}{equipped}: {item.description}")
-
-    def use_item(self, noun):
-        """Use an item from the player's inventory."""
-        if not self.player.inventory:
-            print("Your inventory is empty.")
-            return
-
-        try:
-            # Check if noun is a number
-            item_index = int(noun) - 1
-            if 0 <= item_index < len(self.player.inventory):
-                item = self.player.inventory[item_index]
-                result = item.use(self.player)
+            # process all other commands through the command processor
+            result = process_command(command, self)
+            if result:
                 print(result)
-                if item.consumable:
-                    self.player.inventory.pop(item_index)
-            else:
-                print(f"Invalid item number. You have {len(self.player.inventory)} items.")
-        except ValueError:
-            # If not a number, search by name
-            found = False
-            for item in self.player.inventory:
-                if item.name.lower() == noun.lower():
-                    result = item.use(self.player)
-                    print(result)
-                    if item.consumable:
-                        self.player.inventory.remove(item)
-                    found = True
-                    break
-            if not found:
-                print(f"No item named '{noun}' found in your inventory.")
+
+            # check if player died during command execution
+            if not self.player.is_alive():
+                print("Game over! Your character has been defeated.")
+                self.running = False
+
+    def start_combat(self, enemy_name=None):
+        """Start combat with an enemy, either random or specified by name."""
+        if enemy_name:
+            # find enemy by name
+            enemy = self.world.get_enemy_by_name(enemy_name)
+            if not enemy:
+                return {"error": "No enemy found", "log": [f"No enemy named '{enemy_name}' found."]}
+        else:
+            # random encounter
+            enemy = self.world.encounter_enemy()
+            if not enemy:
+                return {"error": "No enemy found", "log": ["No enemies to encounter in this region."]}
+
+        # create combat instance
+        self.active_combat = Combat(self.player, enemy)
+        self.in_combat = True
+
+        # start the combat and return initial state
+        return self.active_combat.start_combat()
+
+    def process_combat_action(self, action, item_name=None):
+        """Process a player action during combat."""
+        if not self.in_combat or not self.active_combat:
+            return {"error": "Not in combat", "log": ["You are not in combat."]}
+
+        if action == "use_item" and item_name:
+            result = self.active_combat.process_action(action, item_name=item_name)
+        else:
+            result = self.active_combat.process_action(action)
+
+        # check if combat is over
+        if not result["active"]:
+            self.in_combat = False
+            self.active_combat = None
+
+            # handle rewards if player won
+            if result.get("victory"):
+                reward_msg = self.world.give_reward(self.player)
+                if reward_msg:
+                    result["log"].append(reward_msg)
+
+        return result
+
+    def get_current_combat_state(self):
+        """Get the current state of combat if in combat."""
+        if not self.in_combat or not self.active_combat:
+            return None
+        return self.active_combat.get_combat_state()

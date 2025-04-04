@@ -1,6 +1,6 @@
-# Mordor Adventure - Terminal Edition
+# Mordor Adventure - Web Edition
 
-A modular Zork-inspired text adventure set in Mordor, where players explore the dark realm through rich narrative, strategic combat, and challenging puzzles. This classic terminal-based version offers an authentic text adventure experience.
+A modular Zork-inspired text adventure set in Mordor, where players explore the dark realm through rich narrative, strategic combat, and challenging puzzles. This version features a retro CRT-themed web interface.
 
 ## 🔥 Features
 
@@ -8,14 +8,16 @@ A modular Zork-inspired text adventure set in Mordor, where players explore the 
 - **Turn-based Combat**: Strategic battles with various enemy types
 - **Character Classes**: Choose from Human, Elf, or Orc, each with unique abilities
 - **Inventory System**: Collect, use and manage items
-- **Classic Text Interface**: Authentic text adventure experience
-- **Terminal-based**: Play directly in your command line
+- **Retro CRT Interface**: Nostalgic green-screen terminal aesthetic
+- **Web-based Game Engine**: Play directly in your browser
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - Python 3.8+
+- Flask
+- Modern web browser
 
 ### Installation
 
@@ -30,10 +32,20 @@ A modular Zork-inspired text adventure set in Mordor, where players explore the 
    pip install -r requirements.txt
    ```
 
-3. Start the game:
+3. Start the server:
    ```bash
-   python main.py
+   cd web/server
+   python server.py
    ```
+
+4. Open the game in your browser:
+   - Simply open index.html in your browser
+   - Or serve it using a simple HTTP server:
+     ```bash
+     cd web/client
+     python -m http.server
+     ```
+   - Then navigate to `http://localhost:8000`
 
 ## 🎮 How to Play
 
@@ -73,22 +85,27 @@ Mordor-adventure/
 │   ├── characters.py      # Character classes and attributes
 │   ├── combat.py          # Combat system
 │   ├── commands.py        # Command processing
-│   ├── command_processor.py # Command handling
 │   ├── engine.py          # Game engine
-│   ├── game_object.py     # Base game object class
 │   ├── items.py           # Item definitions
 │   └── world.py           # World and region definitions
-├── main.py                # Main game entry point
+├── web/
+│   ├── client/            # Frontend web interface
+│   │   ├── css/           # Stylesheets
+│   │   ├── js/            # Client-side logic
+│   │   ├── assets/        # Static assets
+│   │   │   └── fonts/     # Custom fonts including VT323 for terminal look
+│   │   └── index.html     # Main page
+│   └── server/            # Backend API server
+│       └── server.py      # Flask server
 └── README.md              # This file
 ```
 
 ## 🛠️ Technical Details
 
-- **Python-based**: Pure Python implementation with no external dependencies
-- **Object-Oriented**: Modular design with clear separation of concerns
-- **Text Interface**: Classic command-line interaction
-- **Game State**: In-memory state management during gameplay
-- **Input Handling**: Robust command parsing and execution
+- **Backend**: Python Flask server provides a REST API for game state
+- **Frontend**: HTML, CSS, and JavaScript with a retro CRT terminal style
+- **Communication**: JSON-based API for commands and state updates
+- **State Management**: Server maintains game state between requests
 
 ## 🤝 Contributing
 
@@ -104,9 +121,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🌐 Web Version
+## 🎮 Terminal Version
 
-Looking for a browser-based experience? Check out the [web branch](https://github.com/steepcloud/Mordor-adventure/tree/web) for a retro CRT-themed interface.
+Looking for the terminal-only version? Check out the [terminal branch](https://github.com/steepcloud/Mordor-adventure/tree/terminal) for a classic command-line experience.
 
 ---
 

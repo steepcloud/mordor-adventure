@@ -10,7 +10,7 @@ class Enemy(GameObject):
     def __init__(self, name, description, character_class):
         super().__init__(name, description)
         self.character = character_class(name)
-        # Give enemies some random items they might drop
+        # give enemies some random items they might drop
         self.setup_loot()
 
     def get_desc(self):
@@ -68,11 +68,11 @@ class World:
     def populate_world(self):
         """Populates the world with random enemies."""
         enemy_types = self.regions.get(self.current_region, [])
-        self.enemies = []  # Clear existing enemies
+        self.enemies = []  # clear existing enemies
 
         available_types = enemy_types.copy()
 
-        for _ in range(5):  # Generate 5 random enemies for now
+        for _ in range(5):  # generate 5 random enemies
             if not available_types:
                 # if we've used all the types, refill
                 available_types = enemy_types.copy()
@@ -103,25 +103,9 @@ class World:
         return None
 
     def encounter_enemy(self):
-        """Randomly encounters an enemy."""
+        """Randomly selects an enemy from the current region."""
         if self.enemies:
-            enemy = rd.choice(self.enemies)
-
-            # Start combat with the enemy
-            from .combat import Combat
-            combat = Combat(self.player, enemy.character)
-
-            print(f"You have encountered {enemy.name}!")
-            print(enemy.get_desc())
-
-            combat.start_combat()
-
-            # If the player won, give them any loot and remove the enemy
-            if self.player.is_alive() and not enemy.character.is_alive():
-                self.handle_victory(enemy)
-                self.enemies.remove(enemy)
-
-            return enemy
+            return rd.choice(self.enemies)
         else:
             return None
 
@@ -129,9 +113,38 @@ class World:
         """Handle the aftermath of defeating an enemy."""
         print(f"You have defeated {enemy.name}!")
 
-        # Award loot if the enemy has any
+        # award loot if the enemy has any
         if hasattr(enemy.character, 'inventory') and enemy.character.inventory:
             print("You found some items!")
             for item in enemy.character.inventory:
                 print(f"  - {item.name}: {item.description}")
                 self.player.add_item(item)
+
+    def give_reward(self, player):
+        """Give rewards after combat and return message."""
+        enemy = self.get_last_defeated_enemy()
+        if not enemy:
+            return None
+
+        reward_message = []
+        reward_message.append(f"You have defeated {enemy.name}!")
+
+        # award loot if the enemy has any
+        if hasattr(enemy.character, 'inventory') and enemy.character.inventory:
+            reward_message.append("You found some items!")
+            for item in enemy.character.inventory:
+                reward_message.append(f"  - {item.name}: {item.description}")
+                player.add_item(item)
+
+        # remove the enemy from the world
+        if enemy in self.enemies:
+            self.enemies.remove(enemy)
+
+        return "\n".join(reward_message)
+
+    def get_last_defeated_enemy(self):
+        """Get the last defeated enemy (for reward purposes)."""
+        for enemy in self.enemies:
+            if hasattr(enemy, 'character') and enemy.character.health <= 0:
+                return enemy
+        return None
