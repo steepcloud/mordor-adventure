@@ -46,6 +46,9 @@ def new_game():
         from game.characters import Human
         engine.player = Human(name)
     
+    from game.world import World
+    engine.world = World(engine.player)
+    
     engine._give_starting_items()
     
     return jsonify({
@@ -74,8 +77,7 @@ def command():
     engine = game['engine']
 
     result = process_command(command_text, engine)
-    game['messages'].append(f"> {command_text}")
-    game['messages'].append(result)
+    game['messages'] = [f"> {command_text}", result]
     
     # return updated game state
     return jsonify({
