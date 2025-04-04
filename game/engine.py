@@ -63,18 +63,18 @@ class GameEngine:
         while self.running and self.player.is_alive():
             command = input("\n> ").strip().lower()
             
-            # Special case for quit command
+            # special case for quit command
             if command == "quit":
                 print("Goodbye, traveler!")
                 self.running = False
                 continue
                 
-            # Process all other commands through the command processor
+            # process all other commands through the command processor
             result = process_command(command, self)
             if result:
                 print(result)
             
-            # Check if player died during command execution
+            # check if player died during command execution
             if not self.player.is_alive():
                 print("Game over! Your character has been defeated.")
                 self.running = False
@@ -82,21 +82,21 @@ class GameEngine:
     def start_combat(self, enemy_name=None):
         """Start combat with an enemy, either random or specified by name."""
         if enemy_name:
-            # Find enemy by name
+            # find enemy by name
             enemy = self.world.get_enemy_by_name(enemy_name)
             if not enemy:
                 return {"error": "No enemy found", "log": [f"No enemy named '{enemy_name}' found."]}
         else:
-            # Random encounter
+            # random encounter
             enemy = self.world.encounter_enemy()
             if not enemy:
                 return {"error": "No enemy found", "log": ["No enemies to encounter in this region."]}
         
-        # Create combat instance
+        # create combat instance
         self.active_combat = Combat(self.player, enemy)
         self.in_combat = True
         
-        # Start the combat and return initial state
+        # start the combat and return initial state
         return self.active_combat.start_combat()
 
     def process_combat_action(self, action, item_name=None):
@@ -104,18 +104,17 @@ class GameEngine:
         if not self.in_combat or not self.active_combat:
             return {"error": "Not in combat", "log": ["You are not in combat."]}
         
-        # Process the action
         if action == "use_item" and item_name:
             result = self.active_combat.process_action(action, item_name=item_name)
         else:
             result = self.active_combat.process_action(action)
         
-        # Check if combat is over
+        # check if combat is over
         if not result["active"]:
             self.in_combat = False
             self.active_combat = None
             
-            # Handle rewards if player won
+            # handle rewards if player won
             if result.get("victory"):
                 reward_msg = self.world.give_reward(self.player)
                 if reward_msg:

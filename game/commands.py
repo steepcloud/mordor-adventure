@@ -12,7 +12,6 @@ def process_command(command, game_engine):
     verb = words[0]
     noun = ' '.join(words[1:]) if len(words) > 1 else None
     
-    # Handle different commands
     if verb == "help":
         return help_command()
     
@@ -42,7 +41,7 @@ def process_command(command, game_engine):
             print(f"{game_engine.player.name} initiates combat with {enemy.name}!")
             combat = Combat(game_engine.player, enemy)
             combat.start_combat()
-            return ""  # Combat system handles output
+            return "" 
         else:
             return f"No enemy named '{noun}' found."
     elif verb == "attack":
@@ -55,7 +54,7 @@ def process_command(command, game_engine):
             print(f"{game_engine.player.name} encounters {enemy.name}!")
             combat = Combat(game_engine.player, enemy)
             combat.start_combat()
-            return ""  # Combat system handles output
+            return "" 
         else:
             return "No enemies to encounter."
     
@@ -116,7 +115,7 @@ def use_item(player, item_name_or_num):
         return "Your inventory is empty."
 
     try:
-        # Check if the parameter is a number
+        # check if the parameter is a number
         item_index = int(item_name_or_num) - 1
         if 0 <= item_index < len(player.inventory):
             item = player.inventory[item_index]
@@ -127,7 +126,7 @@ def use_item(player, item_name_or_num):
         else:
             return f"Invalid item number. You have {len(player.inventory)} items."
     except ValueError:
-        # If not a number, search by name
+        # if not a number, search by name
         for item in player.inventory:
             if item.name.lower() == item_name_or_num.lower():
                 result = item.use(player)

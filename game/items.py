@@ -98,7 +98,6 @@ class StrengthElixir(Consumable):
         self.duration = duration
     
     def use(self, user, target=None):
-        # In a real implementation, you'd need a way to track and remove this buff after duration
         user._attack_power += self.boost_amount
         return f"{user.name} drinks the {self.name}, feeling stronger! Attack +{self.boost_amount}."
 
@@ -116,7 +115,6 @@ class DefensePotion(Consumable):
         self.duration = duration
     
     def use(self, user, target=None):
-        # In a real implementation, you'd need a way to track and remove this buff after duration
         user._defense += self.boost_amount
         return f"{user.name} drinks the {self.name}, feeling more resilient! Defense +{self.boost_amount}."
 
@@ -135,16 +133,16 @@ class Weapon(Equipment):
             user.equipped_weapon = None
 
         if self.equipped:
-            # Unequip the weapon
+            # unequip the weapon
             self.equipped = False
             user.equipped_weapon = None
             return f"{user.name} unequips {self.name}."
         else:
-            # Unequip any currently equipped weapon
+            # unequip any currently equipped weapon
             if user.equipped_weapon:
                 user.equipped_weapon.equipped = False
 
-            # Equip this weapon
+            # equip this weapon
             self.equipped = True
             user.equipped_weapon = self
             return f"{user.name} equips {self.name}, gaining +{self.attack_bonus} attack power!"
@@ -164,16 +162,16 @@ class Armor(Equipment):
             user.equipped_armor = None
 
         if self.equipped:
-            # Unequip the armor
+            # unequip the armor
             self.equipped = False
             user.equipped_armor = None
             return f"{user.name} removes {self.name}."
         else:
-            # Unequip any currently equipped armor
+            # unequip any currently equipped armor
             if user.equipped_armor:
                 user.equipped_armor.equipped = False
 
-            # Equip this armor
+            # equip this armor
             self.equipped = True
             user.equipped_armor = self
             return f"{user.name} puts on {self.name}, gaining +{self.defense_bonus} defense!"
@@ -212,7 +210,7 @@ def create_starting_items():
         Armor("Leather Tunic", "Basic protection made of hardened leather.", 1)
     ]
     
-    # Add one random bonus item based on chance
+    # add one random bonus item based on chance
     bonus_roll = rd.random()
     
     if bonus_roll < 0.2:  # 20% chance for a good weapon

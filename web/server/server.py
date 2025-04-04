@@ -91,8 +91,7 @@ def command():
     # combat mode: check if player is in combat
     if engine.in_combat:
         print("Player is in combat, handling combat actions")
-        
-        # Process different combat actions
+
         if command_text.lower() == "attack":
             result = engine.process_combat_action("attack")
         elif command_text.lower() == "special":
@@ -106,10 +105,10 @@ def command():
             # invalid combat command
             result = engine.process_combat_action(command_text.lower())
         
-        # Process combat result
+        # process combat result
         combat_log = result.get("log", [])
         
-        # Format the response
+        # format the response
         response = {
             'player': {
                 'name': engine.player.name,
@@ -122,7 +121,7 @@ def command():
             'game_over': engine.player.health <= 0 or not engine.running
         }
         
-        # Add enemy info if still in combat
+        # add enemy info if still in combat
         if engine.in_combat and engine.active_combat:
             enemy_state = result.get("enemy", {})
             response['enemy'] = enemy_state
@@ -136,10 +135,9 @@ def command():
         if command_text.lower() == "encounter":
             result = engine.start_combat()
         else:
-            enemy_name = command_text[7:].strip()  # Remove 'attack ' prefix
+            enemy_name = command_text[7:].strip()  # remove 'attack ' prefix
             result = engine.start_combat(enemy_name)
-        
-        # Check for errors
+
         if "error" in result:
             return jsonify({
                 'player': get_player_data(engine.player),
@@ -148,7 +146,7 @@ def command():
                 'game_over': False
             })
         
-        # Combat started successfully
+        # combat started successfully
         combat_log = result.get("log", [])
         enemy_data = result.get("enemy", {})
         
@@ -190,10 +188,7 @@ def command():
         game['messages'] = [f"> {command_text}", captured_output]
     else:
         game['messages'] = [f"> {command_text}", "No response from the game."]
-    
 
-    #game['messages'] = [f"> {command_text}", result]
-    
     # return updated game state
     return jsonify({
         'player': get_player_data(engine.player),

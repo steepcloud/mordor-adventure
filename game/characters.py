@@ -10,10 +10,10 @@ class Character(GameObject):
         super().__init__(name, description)
         self.race = race
         self._health = health
-        self._max_health = health  # Store max health for healing purposes
+        self._max_health = health  # store max health for healing purposes
         self._attack_power = attack_power
-        self._defense = 0  # Base defense value
-        self.inventory = []  # List to store items
+        self._defense = 0 
+        self.inventory = [] 
         self.equipped_weapon = None
         self.equipped_armor = None
         self.equipped_charm = None
@@ -44,6 +44,7 @@ class Character(GameObject):
     def attack_power(self):
         """Get the character's attack power including weapon bonus."""
         base_power = self._attack_power
+        # weapons adds to base attack if equipped
         weapon_bonus = self.equipped_weapon.attack_bonus if self.equipped_weapon else 0
         return base_power + weapon_bonus
     
@@ -73,9 +74,9 @@ class Character(GameObject):
 
         damage = rd.randint(1, self.attack_power)
 
-        # Apply target's defense if they have any
+        # armor reduces incoming damage but never below 1
         if hasattr(target, 'defense') and target.defense > 0:
-            reduced_damage = max(1, damage - target.defense)  # Minimum 1 damage
+            reduced_damage = max(1, damage - target.defense)  # minimum 1 damage
             damage_blocked = damage - reduced_damage
             damage = reduced_damage
             target.health = max(0, target.health - damage)
@@ -134,7 +135,7 @@ class Orc(Character):
         damage = rd.randint(self.attack_power, self.attack_power * 2)
         target.health -= damage
 
-        recoil = max(1, damage // 4)
+        recoil = max(1, damage // 4) # recoil scales with damage dealt
         self.health -= recoil
 
         return (f"{self.name} goes into a berserker rage and deals {damage} damage to {target.name}! "
@@ -149,6 +150,7 @@ class Elf(Character):
     
     def special_ability(self, target):
         """Elves have Precision Strike: guaranteed hit with critical chance."""
+        # elves have higher crit chance representing their accuracy
         critical = rd.random() < 0.4  # 40% chance for critical hit
         damage = self.attack_power * (2 if critical else 1)
         target.health -= damage
@@ -166,12 +168,13 @@ class Human(Character):
 
     def special_ability(self, target=None):
         """Humans have Resilience: restore health and gain temporary defense."""
+        # defensive ability that represents human adaptability 
         heal_amount = rd.randint(2, 5)
         original_health = self.health
         self.health += heal_amount
         actual_heal = self.health - original_health
         
-        # Temporarily increase defense for next turn
-        self._defense += 2  # This will wear off in combat.py after enemy turn
+        # temporary defense boost only lasts for the next attack
+        self._defense += 2 
         
         return f"{self.name} shows resilience, healing for {actual_heal} HP and gaining +2 defense for the next attack!"

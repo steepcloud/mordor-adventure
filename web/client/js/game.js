@@ -29,18 +29,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             gameId = data.game_id;
             
-            // Update player info
+            // update player info
             playerNameDisplay.textContent = data.player.name;
             updateHealthDisplay(data.player.health, data.player.max_health);
             
-            // Switch to game screen
+            // switch to game screen
             startupScreen.style.display = 'none';
             gameScreen.style.display = 'flex';
             
-            // Focus on command input
+            // focus on command input
             commandInput.focus();
             
-            // Add typewriter effect to initial text
+            // adding typewriter effect to initial text
             typewriterEffect(output, data.messages.join('\n'), 0, 10);
             
         } catch (error) {
@@ -49,18 +49,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Command input event
     commandInput.addEventListener('keydown', async (e) => {
         if (e.key === 'Enter') {
-            console.log("Current output content:", output.textContent);
-            console.log("Output contains welcome msg:", 
-                   output.textContent.includes("Welcome to the Lands of Mordor"));
-        
             e.preventDefault();
             const command = commandInput.value.trim();
             if (!command) return;
             
-            // Clear input
+            // clear input
             commandInput.value = '';
             
             try {
@@ -77,14 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const data = await response.json();
                 
-                // Update player info
+                // update player info
                 playerNameDisplay.textContent = data.player.name;
                 updateHealthDisplay(data.player.health, data.player.max_health);
                 
-                // Display new messages with typewriter effect
+                // display new messages with typewriter effect
                 typewriterEffect(output, '\n' + data.messages.join('\n'), output.textContent.length, 10);
                 
-                // Scroll to bottom
+                // scroll to bottom
                 output.parentElement.scrollTop = output.parentElement.scrollHeight;
                 
                 if (checkForGameOver(data)) {
@@ -169,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateHealthDisplay(health, maxHealth) {
         playerHealthDisplay.textContent = `HP: ${health}/${maxHealth}`;
         
-        // Change color based on health percentage
+        // change color based on health percentage
         const healthPercent = (health / maxHealth) * 100;
         if (healthPercent < 25) {
             playerHealthDisplay.style.color = '#ff4444';
@@ -197,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     element.parentElement.scrollTop = element.parentElement.scrollHeight;
                 }
                 
-                // Random speed variation for more realistic typing
+                // random speed variation for more realistic typing
                 const randomSpeed = speed + Math.random() * 10;
                 setTimeout(type, randomSpeed);
             }
@@ -209,21 +204,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function showGameOverScreen() {
         console.log("Showing game over screen!");
         
-        // Find the correct container - using fallbacks if needed
+        // finding the correct container - using fallbacks if needed
         let container = document.querySelector('.terminal-content');
         if (!container) {
             container = output.parentElement;
         }
         
-        // Clear the content
+        // clear the content
         if (container) {
             container.innerHTML = '';
         } else {
-            // If no container found, just clear the output
+            // if no container found, just clear the output
             output.innerHTML = '';
         }
         
-        // Create the game over elements
+        // create the game over elements
         const gameOverContainer = document.createElement('div');
         gameOverContainer.className = 'game-over-container';
         
@@ -245,33 +240,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const retryText = document.createElement('div');
         retryText.className = 'retry-text';
         retryText.textContent = 'Press F5 to try again';
-        
-        // Append elements
+
         gameOverContainer.appendChild(gameOverText);
         gameOverContainer.appendChild(retryText);
-        
-        // Append to the right container
+
         if (container) {
             container.appendChild(gameOverContainer);
         } else {
-            // Last resort - replace output content
             output.innerHTML = '';
             output.appendChild(gameOverContainer);
         }
         
-        // Ensure the game over screen is visible
         gameOverContainer.style.display = 'block';
-        
-        // Disable input
+
         commandInput.disabled = true;
-        
-        // Hide any combat UI elements
+
         if (document.getElementById('enemy-info')) {
             document.getElementById('enemy-info').style.display = 'none';
         }
     }
     
-    // CRT Effect on startup - turn on animation
+    // CRT effect on startup - turn on animation
     setTimeout(() => {
         document.body.classList.add('crt-on');
     }, 500);

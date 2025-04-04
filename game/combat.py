@@ -6,12 +6,13 @@ class Combat:
 
     def __init__(self, player, enemy):
         self.player = player
+        # handle both direct character objects and enemy containers
         if hasattr(enemy, 'character'):
             self.enemy = enemy.character
         else:
             self.enemy = enemy
         self.turn_order = self.determine_turn_order()
-        self.combat_log = []
+        self.combat_log = [] # store messages instead of printing directly
         self.combat_active = True
 
     def determine_turn_order(self):
@@ -24,24 +25,23 @@ class Combat:
 
     def attack(self, attacker, target, attack_type="normal"):
         """Handle an attack from the attacker to the target."""
-        # Critical hit chance (20% chance for critical hit)
-        is_critical = rd.random() < 0.2
+        # critical hits provide excitement and variability in combat
+        is_critical = rd.random() < 0.2 # 20% chance for critical hit
         damage = rd.randint(1, attacker.attack_power)
 
-        # Apply critical hit bonus
+        # apply critical hit bonus
         if is_critical:
             damage *= 2
             self.log(f"Critical hit! {attacker.name} deals double damage!")
 
-        # Special attack logic
+        # special attacks are more powerful but limited resource
         if attack_type == "special":
-            damage += rd.randint(1, 3)  # Special attacks do more damage
+            damage += rd.randint(1, 3)  # bonus damage for special attacks
             self.log(f"{attacker.name} uses a special attack!")
 
-        # Apply the damage to the target
+        # apply damage and ensure health never goes below zero
         target.health = max(0, target.health - damage)
 
-        # Message about the attack
         self.log(f"{attacker.name} attacks {target.name} for {damage} damage!")
         self.log(f"{target.name} now has {target.health} HP.")
 
@@ -67,7 +67,6 @@ class Combat:
 
         if hasattr(self.enemy, 'description'):
             self.log(f"{self.enemy.description}")
-            
         self.log(f"The battle begins! {self.turn_order.capitalize()} attacks first.\n")
 
         if self.turn_order == "enemy":
@@ -103,19 +102,20 @@ class Combat:
 
     def process_action(self, action, item_index=None, item_name=None):
         """Process a single combat action and return the updated state."""
-        self.combat_log = []  # Clear previous messages
+        self.combat_log = []  # clear previous messages for this turn
         
-        # Only process actions on player's turn
+        # enforce turn order - only process player actions during player turn
         if self.turn_order != "player":
             self.log("It's not your turn yet!")
             return self.get_combat_state()
         
-        # Process the player's chosen action
+        # handle the various action types
         if action == "attack":
             self.attack(self.player, self.enemy, "normal")
         elif action == "special":
             self.attack(self.player, self.enemy, "special")
         elif action == "use_item":
+            # support both index and name-based item usage
             if item_index is not None:
                 self.use_item_by_index(item_index)
             elif item_name is not None:
@@ -124,6 +124,7 @@ class Combat:
                 self.log("No item specified.")
                 return self.get_combat_state()
         elif action == "flee":
+            # fleeing is not guaranteed - adds strategic decisions
             if self.attempt_flee():
                 self.log(f"{self.player.name} successfully flees from {self.enemy.name}!")
                 self.combat_active = False
@@ -131,25 +132,26 @@ class Combat:
             else:
                 self.log(f"{self.player.name} tries to flee but is blocked by {self.enemy.name}!")
         else:
+            # provide helpful feedback for invalid actions
             self.log(f"Invalid combat action: '{action}'")
             self.log("Available actions: 'attack', 'special', 'use_item', 'flee'")
             self.log(f"\nYou are fighting {self.enemy.name} ({self.enemy.health}/{self.enemy.max_health} HP)")
 
             return self.get_combat_state()
         
-        # Check if combat is over after player's action
+        # check if combat is over after player's action
         if self.check_for_death():
             return self.get_combat_state()
         
-        # Switch to enemy turn
+        # if combat continues, proceed with enemy turn
         self.turn_order = "enemy"
         self.enemy_turn()
         
-        # Check if combat is over after enemy's action
+        # check again if combat is over after enemy's action
         if self.check_for_death():
             return self.get_combat_state()
         
-        # Switch back to player's turn
+        # prepare for next player turn
         self.turn_order = "player"
         self.log("\nIt's your turn!")
         self.log("Available actions: 'attack', 'special', 'use item', 'flee'")
@@ -173,7 +175,7 @@ class Combat:
                 
                 self.log(result)
                 
-                # Remove consumable items after use
+                # remove consumable items after use
                 if item.consumable:
                     self.player.inventory.pop(index)
                 return True
@@ -218,7 +220,7 @@ class Combat:
                     return self.process_action("use_item", item_index=item_idx)
                 except (ValueError, IndexError):
                     print("Invalid selection.")
-                    return self.player_turn()  # Try again
+                    return self.player_turn()  # try again
             else:
                 print("You don't have any items to use.")
                 return self.player_turn()
@@ -226,11 +228,12 @@ class Combat:
             return self.process_action("flee")
         else:
             print("Invalid action. Try again.")
-            self.player_turn()  # Try again
+            self.player_turn()  # try again
 
     def enemy_turn(self):
         """Handle the enemy's turn."""
         self.log("\nIt's the enemy's turn!")
+        # enemies occasionally use special attacks for variety
         attack_type = "special" if rd.random() < 0.2 else "normal"  # 30% chance for a special attack
         self.attack(self.enemy, self.player, attack_type)
 
@@ -240,16 +243,20 @@ class Combat:
         A higher chance of success if the player is stronger or if the enemy is weak.
         :return: True if the flee chance is 50% or higher, False otherwise.
         """
+        # flee chance is affected by relative strength of combatants
         flee_chance = rd.random()
-        player_strength = self.player.health  # Using player health as strength for now
-        enemy_strength = self.enemy.health  # Same for the enemy
+        player_strength = self.player.health  # using player health as strength for now
+        enemy_strength = self.enemy.health  # same for the enemy
 
+        # easier to flee from weakened enemies
         if player_strength > enemy_strength:
             flee_chance += 0.2
 
+        # harder to flee when you're weaker
         if player_strength < enemy_strength:
             flee_chance -= 0.2
 
         flee_chance = max(0.0, min(flee_chance, 1.0))
 
+        # 50% threshold for successful fleeing
         return flee_chance >= 0.5

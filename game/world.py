@@ -10,7 +10,7 @@ class Enemy(GameObject):
     def __init__(self, name, description, character_class):
         super().__init__(name, description)
         self.character = character_class(name)
-        # Give enemies some random items they might drop
+        # give enemies some random items they might drop
         self.setup_loot()
 
     def get_desc(self):
@@ -68,11 +68,11 @@ class World:
     def populate_world(self):
         """Populates the world with random enemies."""
         enemy_types = self.regions.get(self.current_region, [])
-        self.enemies = []  # Clear existing enemies
+        self.enemies = []  # clear existing enemies
 
         available_types = enemy_types.copy()
 
-        for _ in range(5):  # Generate 5 random enemies for now
+        for _ in range(5):  # generate 5 random enemies
             if not available_types:
                 # if we've used all the types, refill
                 available_types = enemy_types.copy()
@@ -113,7 +113,7 @@ class World:
         """Handle the aftermath of defeating an enemy."""
         print(f"You have defeated {enemy.name}!")
 
-        # Award loot if the enemy has any
+        # award loot if the enemy has any
         if hasattr(enemy.character, 'inventory') and enemy.character.inventory:
             print("You found some items!")
             for item in enemy.character.inventory:
@@ -129,14 +129,14 @@ class World:
         reward_message = []
         reward_message.append(f"You have defeated {enemy.name}!")
         
-        # Award loot if the enemy has any
+        # award loot if the enemy has any
         if hasattr(enemy.character, 'inventory') and enemy.character.inventory:
             reward_message.append("You found some items!")
             for item in enemy.character.inventory:
                 reward_message.append(f"  - {item.name}: {item.description}")
                 player.add_item(item)
         
-        # Remove the enemy from the world
+        # remove the enemy from the world
         if enemy in self.enemies:
             self.enemies.remove(enemy)
         
@@ -144,7 +144,6 @@ class World:
 
     def get_last_defeated_enemy(self):
         """Get the last defeated enemy (for reward purposes)."""
-        # This is a placeholder - in a real implementation, you'd track this
         for enemy in self.enemies:
             if hasattr(enemy, 'character') and enemy.character.health <= 0:
                 return enemy
