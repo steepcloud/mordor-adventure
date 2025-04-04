@@ -92,7 +92,9 @@ class Character(GameObject):
         return f"{self.name} heals for {actual_heal} HP! Current HP: {self.health}/{self.max_health}"
 
     def add_item(self, item):
-        """Add an item to the character's inventory."""
+        """Add an item to the character's inventory if there's space."""
+        if len(self.inventory) >= 10:  # limit inventory to 10 items
+            return f"{self.name}'s inventory is full! Drop something first."
         self.inventory.append(item)
         return f"{self.name} acquires {item.name}!"
 
