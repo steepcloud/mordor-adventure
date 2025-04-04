@@ -1,6 +1,11 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from game.engine import GameEngine
+from game.commands import process_command
 
 app = Flask(__name__)
 CORS(app)  # allow cross-origin requests
@@ -25,8 +30,22 @@ def new_game():
         'messages': ["Welcome to the Lands of Mordor!"],
     }
     
-    # start game with provided character info
-    engine.player = engine._create_player(name, race)
+    # init engine
+    engine.player = None
+    engine.world = None
+    engine.running = True
+
+    # create player based on race
+    if race == "orc":
+        from game.characters import Orc
+        engine.player = Orc(name)
+    elif race == "elf":
+        from game.characters import Elf
+        engine.player = Elf(name)
+    else:
+        from game.characters import Human
+        engine.player = Human(name)
+    
     engine._give_starting_items()
     
     return jsonify({
@@ -54,7 +73,7 @@ def command():
     game = games[game_id]
     engine = game['engine']
 
-    result = engine.process_command(command_text)
+    result = engine.process_command(command_text, engine)
     game['messages'].append(f"> {command_text}")
     game['messages'].append(result)
     
