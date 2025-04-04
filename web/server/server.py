@@ -73,7 +73,7 @@ def command():
     game = games[game_id]
     engine = game['engine']
 
-    result = engine.process_command(command_text, engine)
+    result = process_command(command_text, engine)
     game['messages'].append(f"> {command_text}")
     game['messages'].append(result)
     
