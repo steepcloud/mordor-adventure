@@ -23,7 +23,7 @@ A modular Zork-inspired text adventure set in Mordor, where players explore the 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/Mordor-adventure.git
+   git clone https://github.com/steepcloud/Mordor-adventure.git
    cd Mordor-adventure
    ```
 
@@ -123,7 +123,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🎮 Terminal Version
 
-Looking for the terminal-only version? Check out the [terminal branch](https://github.com/yourusername/Mordor-adventure/tree/terminal) for a classic command-line experience.
+Looking for the terminal-only version? Check out the [terminal branch](https://github.com/steepcloud/Mordor-adventure/tree/terminal) for a classic command-line experience.
 
 ---
 
