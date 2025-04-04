@@ -10,10 +10,10 @@ class Character(GameObject):
         super().__init__(name, description)
         self.race = race
         self.health = health
-        self.max_health = health  # Store max health for healing purposes
+        self.max_health = health
         self.attack_power = attack_power
-        self.defense = 0  # Base defense value
-        self.inventory = []  # List to store items
+        self.defense = 0
+        self.inventory = []
         self.equipped_weapon = None
         self.equipped_armor = None
 
@@ -26,9 +26,9 @@ class Character(GameObject):
 
         damage = rd.randint(1, self.attack_power)
 
-        # Apply target's defense if they have any
+        # apply target's defense if they have any
         if hasattr(target, 'defense') and target.defense > 0:
-            reduced_damage = max(1, damage - target.defense)  # Minimum 1 damage
+            reduced_damage = max(1, damage - target.defense)  # minimum 1 damage
             damage_blocked = damage - reduced_damage
             damage = reduced_damage
             target.health = max(0, target.health - damage)
@@ -91,4 +91,3 @@ class Human(Character):
     def __init__(self, name):
         super().__init__(name, "Human", 18, 4)
         # Humans are balanced
-        # Could add special abilities later

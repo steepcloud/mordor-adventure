@@ -15,7 +15,15 @@ class GameEngine:
 
     def start_game(self):
         print("Welcome to the Lands of Mordor!")
-        name = input("Enter your character name: ")
+
+        while True:
+            name = input("Enter your character name: ").strip()
+            if len(name) > 256:
+                print("Name is too long. Please keep your name under 256 characters.")
+            elif not name:
+                print("You must enter a name.")
+            else:
+                break
         race = input("Choose your race (Orc, Elf, Human): ").strip().lower()
 
         if race == "orc":
