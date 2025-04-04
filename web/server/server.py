@@ -119,7 +119,7 @@ def command():
             },
             'messages': [f"> {command_text}"] + combat_log,
             'in_combat': engine.in_combat,
-            'game_over': not engine.running or not engine.player.is_alive()
+            'game_over': engine.player.health <= 0 or not engine.running
         }
         
         # Add enemy info if still in combat

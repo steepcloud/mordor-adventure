@@ -86,10 +86,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Scroll to bottom
                 output.parentElement.scrollTop = output.parentElement.scrollHeight;
                 
-                // Check if game is over
-                if (data.game_over) {
-                    appendToOutput('\n\nGame Over! Refresh the page to start a new game.');
-                    commandInput.disabled = true;
+                if (checkForGameOver(data)) {
+                    return;
+                }
+                
+                if (data.in_combat) {
+                    setTimeout(() => {
+                        if (data.player.health <= 0) {
+                            console.log("Delayed death detection!");
+                            showGameOverScreen();
+                            commandInput.disabled = true;
+                        }
+                    }, 2000);
                 }
                 
             } catch (error) {
@@ -98,6 +106,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    function checkForGameOver(data) {
+        console.log("Checking game over status:", data.player.health, data.game_over);
+        if (data.player.health <= 0 || data.game_over) {
+            console.log("Game over condition detected!");
+            showGameOverScreen();
+            commandInput.disabled = true;
+            return true;
+        }
+        return false;
+    }
     
     // Helper functions
     function appendToOutput(text) {
@@ -125,9 +144,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         function type() {
             if (i < text.length) {
+                if (!element || !document.body.contains(element)) {
+                    console.log("Element no longer in document, stopping typewriter effect");
+                    return;
+                }
                 element.textContent = baseText + text.substring(0, i + 1);
                 i++;
-                element.parentElement.scrollTop = element.parentElement.scrollHeight;
+
+                if (element.parentElement) {
+                    element.parentElement.scrollTop = element.parentElement.scrollHeight;
+                }
                 
                 // Random speed variation for more realistic typing
                 const randomSpeed = speed + Math.random() * 10;
@@ -136,6 +162,71 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         type();
+    }
+
+    function showGameOverScreen() {
+        console.log("Showing game over screen!");
+        
+        // Find the correct container - using fallbacks if needed
+        let container = document.querySelector('.terminal-content');
+        if (!container) {
+            container = output.parentElement;
+        }
+        
+        // Clear the content
+        if (container) {
+            container.innerHTML = '';
+        } else {
+            // If no container found, just clear the output
+            output.innerHTML = '';
+        }
+        
+        // Create the game over elements
+        const gameOverContainer = document.createElement('div');
+        gameOverContainer.className = 'game-over-container';
+        
+        const gameOverText = document.createElement('pre');
+        gameOverText.className = 'game-over flashing';
+        gameOverText.innerHTML = `
+    ▄████  ▄▄▄       ███▄ ▄███▓▓█████     ▒█████   ██▒   █▓▓█████  ██▀███  
+    ██▒ ▀█▒▒████▄    ▓██▒▀█▀ ██▒▓█   ▀    ▒██▒  ██▒▓██░   █▒▓█   ▀ ▓██ ▒ ██▒
+    ▒██░▄▄▄░▒██  ▀█▄  ▓██    ▓██░▒███      ▒██░  ██▒ ▓██  █▒░▒███   ▓██ ░▄█ ▒
+    ░▓█  ██▓░██▄▄▄▄██ ▒██    ▒██ ▒▓█  ▄    ▒██   ██░  ▒██ █░░▒▓█  ▄ ▒██▀▀█▄  
+    ░▒▓███▀▒ ▓█   ▓██▒▒██▒   ░██▒░▒████▒   ░ ████▓▒░   ▒▀█░  ░▒████▒░██▓ ▒██▒
+    ░▒   ▒  ▒▒   ▓▒█░░ ▒░   ░  ░░░ ▒░ ░   ░ ▒░▒░▒░    ░ ▐░  ░░ ▒░ ░░ ▒▓ ░▒▓░
+    ░   ░   ▒   ▒▒ ░░  ░      ░ ░ ░  ░     ░ ▒ ▒░    ░ ░░   ░ ░  ░  ░▒ ░ ▒░
+    ░ ░   ░   ░   ▒   ░      ░      ░      ░ ░ ░ ▒       ░░     ░     ░░   ░ 
+        ░       ░  ░       ░      ░  ░       ░ ░        ░     ░  ░   ░     
+                                                        ░                    
+    `;
+        
+        const retryText = document.createElement('div');
+        retryText.className = 'retry-text';
+        retryText.textContent = 'Press F5 to try again';
+        
+        // Append elements
+        gameOverContainer.appendChild(gameOverText);
+        gameOverContainer.appendChild(retryText);
+        
+        // Append to the right container
+        if (container) {
+            container.appendChild(gameOverContainer);
+        } else {
+            // Last resort - replace output content
+            output.innerHTML = '';
+            output.appendChild(gameOverContainer);
+        }
+        
+        // Ensure the game over screen is visible
+        gameOverContainer.style.display = 'block';
+        
+        // Disable input
+        commandInput.disabled = true;
+        
+        // Hide any combat UI elements
+        if (document.getElementById('enemy-info')) {
+            document.getElementById('enemy-info').style.display = 'none';
+        }
     }
     
     // CRT Effect on startup - turn on animation
