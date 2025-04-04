@@ -76,7 +76,7 @@ class World:
             if not available_types:
                 # if we've used all the types, refill
                 available_types = enemy_types.copy()
-            
+
             if available_types:
                 # select a random enemy type and remove it from available_types
                 type_index = rd.randint(0, len(available_types) - 1)

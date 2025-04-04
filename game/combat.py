@@ -52,7 +52,7 @@ class Combat:
     def start_combat(self):
         """Initiate the combat loop with random turn order."""
         print(f"The battle begins! {self.turn_order.capitalize()} attacks first.\n")
-        
+
         combat_active = True
         while combat_active:
             if self.turn_order == "player":
