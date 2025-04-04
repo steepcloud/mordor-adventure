@@ -160,6 +160,16 @@ def command():
             'game_over': False
         })
 
+    if command_text.lower() == "quit":
+        engine.running = False
+
+        return jsonify({
+            'player': get_player_data(engine.player),
+            'messages': ["> quit", "Goodbye, traveler! Returning to main menu..."],
+            'game_over': True,
+            'quit': True
+        })
+
     # normal mode: process regular non-combat commands
     output_buffer = io.StringIO()
     with redirect_stdout(output_buffer):

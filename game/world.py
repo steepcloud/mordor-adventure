@@ -102,30 +102,6 @@ class World:
                 return enemy
         return None
 
-    '''
-    def encounter_enemy(self):
-        """Randomly encounters an enemy."""
-        if self.enemies:
-            enemy = rd.choice(self.enemies)
-
-            # Start combat with the enemy
-            from .combat import Combat
-            combat = Combat(self.player, enemy.character)
-
-            print(f"You have encountered {enemy.name}!")
-            print(enemy.get_desc())
-
-            combat.start_combat()
-
-            # If the player won, give them any loot and remove the enemy
-            if self.player.is_alive() and not enemy.character.is_alive():
-                self.handle_victory(enemy)
-                self.enemies.remove(enemy)
-
-            return enemy
-        else:
-            return None
-    '''
     def encounter_enemy(self):
         """Randomly selects an enemy from the current region."""
         if self.enemies:

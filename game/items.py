@@ -204,17 +204,6 @@ class LuckCharm(Equipment):
             return f"{user.name} wears the {self.name}, feeling luckier!"
 
 
-class MagicMap(Consumable):
-    """Reveals all enemies in the current region."""
-    
-    def __init__(self):
-        super().__init__("Magic Map", "A parchment that glows when unfolded, revealing hidden enemies.", value=30)
-    
-    def use(self, user, target=None):
-        # This would need game engine access to actually reveal enemies
-        return f"{user.name} unfolds the map, which glows with magical energy, revealing all enemies in the area!"
-
-
 def create_starting_items():
     """Create a set of starting items for a new player."""
     items = [

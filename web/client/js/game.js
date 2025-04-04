@@ -90,6 +90,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (checkForGameOver(data)) {
                     return;
                 }
+                else if (data.quit) {
+                    console.log("Quit condition detected!");
+                    showQuitScreen();
+                    return;
+                }
                 
                 if (data.in_combat) {
                     setTimeout(() => {
@@ -107,6 +112,42 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    function showQuitScreen() {
+        console.log("Showing quit screen");
+
+        let container = document.querySelector('.terminal-content');
+        if (!container) {
+            container = output.parentElement;
+        }
+
+        if (container) {
+            container.innerHTML = '';
+        } else {
+            output.innerHTML = '';
+        }
+
+        const quitMessage = document.createElement('div');
+        quitMessage.className = 'quit-message';
+        quitMessage.innerHTML = `
+            <h2>Thank you for playing!</h2>
+            <p>You have quit the game.</p>
+            <button id="return-to-menu">Return to Main Menu</button>
+        `;
+
+        if (container) {
+            container.appendChild(quitMessage);
+        } else {
+            output.appendChild(quitMessage);
+        }
+
+        document.getElementById('return-to-menu').addEventListener('click', () => {
+            document.querySelector('#game-screen').style.display = 'none';
+            document.querySelector('#startup-screen').style.display = 'block';
+        });
+
+        commandInput.disabled = true;
+    }
 
     function checkForGameOver(data) {
         console.log("Checking game over status:", data.player.health, data.game_over);
