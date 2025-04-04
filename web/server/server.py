@@ -3,9 +3,9 @@ from flask_cors import CORS
 from game.engine import GameEngine
 
 app = Flask(__name__)
-CORS(app)  # Allow cross-origin requests
+CORS(app)  # allow cross-origin requests
 
-# Store active games
+# store active games
 games = {}
 
 @app.route('/api/new_game', methods=['POST'])
@@ -15,17 +15,17 @@ def new_game():
     game_id = str(len(games) + 1)
     engine = GameEngine()
     
-    # Initialize player from request data
+    # initialize player from request data
     name = data.get('name', 'Adventurer')
     race = data.get('race', 'human')
     
-    # Store game state
+    # store game state
     games[game_id] = {
         'engine': engine,
         'messages': ["Welcome to the Lands of Mordor!"],
     }
     
-    # Start game with provided character info
+    # start game with provided character info
     engine.player = engine._create_player(name, race)
     engine._give_starting_items()
     
@@ -50,16 +50,15 @@ def command():
     if game_id not in games:
         return jsonify({'error': 'Game not found'}), 404
     
-    # Get game state
+    # get game state
     game = games[game_id]
     engine = game['engine']
-    
-    # Process command
+
     result = engine.process_command(command_text)
     game['messages'].append(f"> {command_text}")
     game['messages'].append(result)
     
-    # Return updated game state
+    # return updated game state
     return jsonify({
         'player': {
             'name': engine.player.name,
@@ -67,7 +66,7 @@ def command():
             'max_health': engine.player.max_health,
             'inventory': [item.name for item in engine.player.inventory]
         },
-        'messages': game['messages'][-10:],  # Last 10 messages
+        'messages': game['messages'][-10:],  # last 10 messages
         'game_over': not engine.running or not engine.player.is_alive()
     })
 
