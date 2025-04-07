@@ -128,5 +128,3 @@ Looking for the terminal-only version? Check out the [terminal branch](https://g
 ---
 
 *Disclaimer: This project is a fan creation and is not affiliated with the works of J.R.R. Tolkien or any official Tolkien estate properties.*
-
-Similar code found with 2 license types
