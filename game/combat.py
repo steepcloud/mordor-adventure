@@ -114,15 +114,21 @@ class Combat:
             self.attack(self.player, self.enemy, "normal")
         elif action == "special":
             self.attack(self.player, self.enemy, "special")
-        elif action == "use_item":
-            # support both index and name-based item usage
-            if item_index is not None:
+        elif action == "use item":
+            if item_index is None and item_name is None:
+                if hasattr(self.player, 'inventory') and self.player.inventory:
+                    self.log("Your inventory:")
+                    for i, item in enumerate(self.player.inventory, 1):
+                        self.log(f"  {i}. {item.name}: {item.description}")
+                    self.log("\nType 'use [item number]' or 'use [item name]' to use an item.")
+                else:
+                    self.log("You don't have any items to use.")
+                return self.get_combat_state()
+
+            elif item_index is not None:
                 self.use_item_by_index(item_index)
             elif item_name is not None:
                 self.use_item_by_name(item_name)
-            else:
-                self.log("No item specified.")
-                return self.get_combat_state()
         elif action == "flee":
             # fleeing is not guaranteed - adds strategic decisions
             if self.attempt_flee():
@@ -134,7 +140,7 @@ class Combat:
         else:
             # provide helpful feedback for invalid actions
             self.log(f"Invalid combat action: '{action}'")
-            self.log("Available actions: 'attack', 'special', 'use_item', 'flee'")
+            self.log("Available actions: 'attack', 'special', 'use item', 'flee'")
             self.log(f"\nYou are fighting {self.enemy.name} ({self.enemy.health}/{self.enemy.max_health} HP)")
 
             return self.get_combat_state()
@@ -217,7 +223,7 @@ class Combat:
 
                 try:
                     item_idx = int(input("Enter item number to use: ")) - 1
-                    return self.process_action("use_item", item_index=item_idx)
+                    return self.process_action("use item", item_index=item_idx)
                 except (ValueError, IndexError):
                     print("Invalid selection.")
                     return self.player_turn()  # try again

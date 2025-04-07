@@ -99,13 +99,18 @@ class GameEngine:
         # start the combat and return initial state
         return self.active_combat.start_combat()
 
-    def process_combat_action(self, action, item_name=None):
+    def process_combat_action(self, action, item_param=None):
         """Process a player action during combat."""
         if not self.in_combat or not self.active_combat:
             return {"error": "Not in combat", "log": ["You are not in combat."]}
 
-        if action == "use_item" and item_name:
-            result = self.active_combat.process_action(action, item_name=item_name)
+        if action == "use item":
+            if isinstance(item_param, int):
+                # it's an index
+                result = self.active_combat.process_action(action, item_index=item_param)
+            else:
+                # it's a name (string) or None
+                result = self.active_combat.process_action(action, item_name=item_param)
         else:
             result = self.active_combat.process_action(action)
 

@@ -98,9 +98,16 @@ def command():
             result = engine.process_combat_action("special")
         elif command_text.lower() == "flee":
             result = engine.process_combat_action("flee")
+        elif command_text.lower() == "use item":
+            result = engine.process_combat_action("use item", None)
         elif command_text.lower().startswith("use "):
-            item_name = command_text[4:].strip()
-            result = engine.process_combat_action("use_item", item_name)
+            param = command_text[4:].strip()
+
+            try:
+                item_index = int(param) - 1  # convert to zero-based index
+                result = engine.process_combat_action("use item", item_index)
+            except ValueError:
+                result = engine.process_combat_action("use item", param)
         else:
             # invalid combat command
             result = engine.process_combat_action(command_text.lower())
